@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.LargeWord
@@ -105,7 +106,7 @@ loHalf (LargeKey a b) = a
 {-# INLINE hiHalf #-}
 hiHalf (LargeKey a b) = b
 
-instance (Ord a, Bits a, LargeWord a, Bits b, LargeWord b) =>
+instance (Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) =>
    LargeWord (LargeKey a b) where
       largeWordToInteger (LargeKey lo hi) =
          largeWordToInteger lo + (2^(bitSize lo)) * largeWordToInteger hi
@@ -146,10 +147,10 @@ instance (Ord a, Bits a, LargeWord a, Bits b, LargeWord b) =>
                convba = integerToLargeWord . largeWordToInteger
       largeBitSize ~(LargeKey lo hi) = largeBitSize lo + largeBitSize hi
 
-instance (Ord a, Bits a, LargeWord a, Bits b, LargeWord b) => Show (LargeKey a b) where
+instance (Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) => Show (LargeKey a b) where
    showsPrec p = showInt . largeWordToInteger
 
-instance (Ord b, Ord a, Bits a, LargeWord a, Bits b, LargeWord b) => 
+instance (Ord b, Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) => 
    Num (LargeKey a b) where
       (+) = largeWordPlus
       (-) = largeWordMinus
@@ -166,7 +167,7 @@ instance (Ord b, Ord a, Bits a, LargeWord a, Bits b, LargeWord b) =>
 
 -- Larger keys are instances of Bits provided their constituents are keys.
 
-instance (Ord a, Ord b, Bits a, LargeWord a, Bits b, LargeWord b) => 
+instance (Ord a, Ord b, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) => 
    Bits (LargeKey a b) where
       (.&.) = largeWordAnd
       (.|.) = largeWordOr
@@ -175,6 +176,11 @@ instance (Ord a, Ord b, Bits a, LargeWord a, Bits b, LargeWord b) =>
       complement (LargeKey a b) = LargeKey (complement a) (complement b)
       bitSize = largeBitSize
       isSigned _ = False
+#if MIN_VERSION_base(4,6,0)
+      bit = bitDefault
+      testBit = testBitDefault
+      popCount = popCountDefault
+#endif
 
 instance (Ord a, Bits a, Bounded a, Integral a, LargeWord a, 
                  Bits b, Bounded b, Integral b, LargeWord b) => 
@@ -192,7 +198,7 @@ aoflk = undefined
 boflk :: (LargeKey a b) -> b
 boflk = undefined
 
-instance (Bounded a, Bounded b, Enum b, Enum a, Ord a, Bits a, LargeWord a, Ord b, Bits b, LargeWord b) =>
+instance (Bounded a, Bounded b, Enum b, Enum a, Ord a, Bits a, Num a, LargeWord a, Ord b, Bits b, Num b, LargeWord b) =>
    Integral (LargeKey a b) where
       toInteger = largeWordToInteger
       quotRem a b =
@@ -211,7 +217,7 @@ instance (Bounded a, Bounded b, Enum b, Enum a, Ord a, Bits a, LargeWord a, Ord 
                v2 = ((v - b) `shiftL` 1) .|. newBit
       divMod = quotRem
 
-instance (Ord a, Bits a, Bounded a, Bounded b, Enum a, Enum b, LargeWord a, Ord b, Bits b, LargeWord b) => Real (LargeKey a b) where
+instance (Ord a, Bits a, Num a, Bounded a, Bounded b, Enum a, Enum b, LargeWord a, Ord b, Bits b, Num b, LargeWord b) => Real (LargeKey a b) where
       toRational w = toRational (fromIntegral w :: Integer)
 
 
