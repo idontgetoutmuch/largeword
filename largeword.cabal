@@ -17,7 +17,7 @@ tested-with:    GHC == 7.0.3, GHC == 7.4.1
 Extra-source-files: Tests/Properties.hs
 
 source-repository head
-    type:     darcs
+    type:     git
     location: https://github.com/idontgetoutmuch/largeword
 
 Library
