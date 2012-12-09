@@ -6,7 +6,7 @@ author:         Dominic Steinitz <dominic@steinitz.org>
 maintainer:     Dominic Steinitz <dominic@steinitz.org>
 description:    Provides Word128, Word192 and Word256 and a way of producing other large words if required.
 synopsis:       Provides Word128, Word192 and Word256 and a way of producing other large words if required.
-homepage:       //https://github.com/idontgetoutmuch/largeword
+homepage:       https://github.com/idontgetoutmuch/largeword
 category:       Data
 stability:      stable
 build-type:     Simple
@@ -18,7 +18,7 @@ Extra-source-files: Tests/Properties.hs
 
 source-repository head
     type:     darcs
-    location: http://code.haskell.org/largeword
+    location: https://github.com/idontgetoutmuch/largeword
 
 Library
   Build-Depends:   base >= 4.0 && < 5
