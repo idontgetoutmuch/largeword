@@ -150,7 +150,7 @@ instance (Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) =>
 instance (Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) => Show (LargeKey a b) where
    showsPrec p = showInt . largeWordToInteger
 
-instance (Ord b, Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) => 
+instance (Ord b, Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) =>
    Num (LargeKey a b) where
       (+) = largeWordPlus
       (-) = largeWordMinus
@@ -163,16 +163,21 @@ instance (Ord b, Ord a, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) 
       negate = id
       abs    = id
       signum a = if a > 0 then 1 else 0
-      fromInteger = integerToLargeWord 
+      fromInteger = integerToLargeWord
 
 -- Larger keys are instances of Bits provided their constituents are keys.
 
-instance (Ord a, Ord b, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) => 
+instance (Ord a, Ord b, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) =>
    Bits (LargeKey a b) where
       (.&.) = largeWordAnd
       (.|.) = largeWordOr
       xor = largeWordXor
       shift = largeWordShift
+      x `rotate`  i | i < 0  = (x `largeWordShift` i) .|.
+                               (x `largeWordShift` (i + largeBitSize x))
+                    | i == 0 = x
+                    | i > 0  = (x `largeWordShift` i) .|.
+                               (x `largeWordShift` (i - largeBitSize x))
       complement (LargeKey a b) = LargeKey (complement a) (complement b)
       bitSize = largeBitSize
       isSigned _ = False
@@ -182,8 +187,8 @@ instance (Ord a, Ord b, Bits a, Num a, LargeWord a, Bits b, Num b, LargeWord b) 
       popCount = popCountDefault
 #endif
 
-instance (Ord a, Bits a, Bounded a, Integral a, LargeWord a, 
-                 Bits b, Bounded b, Integral b, LargeWord b) => 
+instance (Ord a, Bits a, Bounded a, Integral a, LargeWord a,
+                 Bits b, Bounded b, Integral b, LargeWord b) =>
    Bounded (LargeKey a b) where
       minBound = 0
       maxBound =
