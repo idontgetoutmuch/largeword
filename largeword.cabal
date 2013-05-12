@@ -1,5 +1,5 @@
 name:           largeword
-version:        1.0.4
+version:        1.0.5
 license:        BSD3
 copyright:      Dominic Steinitz <dominic@steinitz.org>
 author:         Dominic Steinitz <dominic@steinitz.org>
@@ -11,7 +11,7 @@ category:       Data
 stability:      stable
 build-type:     Simple
 cabal-version:  >= 1.9.2
-tested-with:    GHC == 7.0.3, GHC == 7.4.1
+tested-with:    GHC == 7.0.3, GHC == 7.6.2
 -- Tests/Properties.hs shouldn't have to go here, but the source files
 -- for the test-suite stanzas don't get picked up by `cabal sdist`.
 Extra-source-files: Tests/Properties.hs
@@ -34,7 +34,7 @@ Test-suite tests
                  test-framework-hunit >= 0.2.6 && < 0.4,
                  QuickCheck >= 2.4.0.1,
                  HUnit >= 1.2.2.3,
-                 largeword == 1.0.4
+                 largeword == 1.0.5
 
 
 
