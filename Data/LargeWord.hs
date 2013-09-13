@@ -99,7 +99,7 @@ instance LargeWord Word64 where
 -- Define larger keys from smaller ones.
 
 data LargeKey a b = LargeKey a b
-   deriving (Eq, Ord)
+   deriving (Eq)
 
 {-# INLINE loHalf #-}
 loHalf (LargeKey a b) = a
@@ -233,6 +233,11 @@ instance (Eq a, Bounded a, Num a, Enum b, Enum a, Bounded b, Num b) => Enum (Lar
 	pred (LargeKey l h) = LargeKey (pred l) h
 	succ (LargeKey l h) = if l == maxBound then LargeKey 0 (succ h)
                                                else LargeKey (succ l) h
+
+
+instance (Ord a, Ord b) => Ord (LargeKey a b) where
+    compare a b = compare (hiHalf a, loHalf a) (hiHalf b, loHalf b)
+
 
 type Word96  = LargeKey Word32 Word64
 type Word128 = LargeKey Word64 Word64
