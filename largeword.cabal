@@ -21,7 +21,8 @@ source-repository head
     location: https://github.com/idontgetoutmuch/largeword
 
 Library
-  Build-Depends:   base >= 4.0 && < 5
+  Build-Depends:   base >= 4.0 && < 5,
+                   binary
   exposed-modules: Data.LargeWord
 
 Test-suite tests
@@ -29,6 +30,8 @@ Test-suite tests
   Hs-source-dirs: Tests
   Main-is: Properties.hs
   Build-depends: base >= 4.0 && < 5,
+                 binary,
+                 bytestring,
                  test-framework >= 0.3.3 && < 0.9,
                  test-framework-quickcheck2 >= 0.2.9 && < 0.4,
                  test-framework-hunit >= 0.2.6 && < 0.4,
