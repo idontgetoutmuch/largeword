@@ -31,6 +31,9 @@ import Data.Bits
 import Numeric
 import Data.Char
 
+import Control.Applicative ((<$>), (<*>))
+import Data.Binary (Binary, put, get)
+
 -- Keys have certain capabilities.
 
 class LargeWord a where
@@ -233,6 +236,10 @@ instance (Eq a, Bounded a, Num a, Enum b, Enum a, Bounded b, Num b) => Enum (Lar
 	pred (LargeKey l h) = LargeKey (pred l) h
 	succ (LargeKey l h) = if l == maxBound then LargeKey 0 (succ h)
                                                else LargeKey (succ l) h
+
+instance (Binary a, Binary b) => Binary (LargeKey a b) where
+   put (LargeKey lo hi) = put hi >> put lo
+   get = flip LargeKey <$> get <*> get
 
 type Word96  = LargeKey Word32 Word64
 type Word128 = LargeKey Word64 Word64
