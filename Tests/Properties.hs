@@ -6,6 +6,7 @@ import Test.Framework (Test, defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.Framework.Providers.HUnit
 import Data.LargeWord
+import Data.Word
 import Data.Bits
 import Control.Monad
 import Data.Binary (encode, decode, Binary)
@@ -18,6 +19,15 @@ pShiftRightShiftLeft :: Word128 -> Bool
 pShiftRightShiftLeft x = shiftR (shiftL x 1) 1 == x .&. (fromInteger ((2^127) - 1))
 
 u1 = shiftR (18446744073709551616  :: Word128) 64  @?= 1
+
+u2 = fromIntegral rx @?= ry
+     where
+       (qx, rx) = quotRem x 16
+       (qy, ry) = quotRem y 16
+       x :: Word256
+       x = 38005301878299911831224450518562252023196687895537483615987098364562629304236
+       y :: Integer
+       y = 38005301878299911831224450518562252023196687895537483615987098364562629304236
 
 encodeDecode :: (Binary a, Binary b, Eq a, Eq b) => LargeKey a b -> Bool
 encodeDecode word = decode encoded == word
@@ -34,6 +44,7 @@ tests :: [Test]
 tests =
     [ testProperty "largeword shift left then right" pShiftRightShiftLeft
     , testCase "largeword shift 2^64 by 2^64" u1
+    , testCase "largeword quotRem by 2^64" u2
     , testCase "big-endian encoding" correctEncoding
     , testProperty "Word96 encode/decode loop" (encodeDecode::Word96 -> Bool)
     , testProperty "Word128 encode/decode loop" (encodeDecode::Word128 -> Bool)
