@@ -41,6 +41,7 @@ import Numeric
 import Control.Applicative ((<$>), (<*>))
 import Data.Binary (Binary, put, get)
 
+
 -- Keys have certain capabilities.
 
 class LargeWord a where
@@ -149,14 +150,27 @@ instance (Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b,
       largeWordShift w 0 = w
       largeWordShift (LargeKey lo hi) x =
          if x >= 0
-            then
-               LargeKey (shift lo x)
-                        (shift hi x .|. (shift (convab lo) (x - (finiteBitSize lo))))
-            else
-               LargeKey (shift lo x .|. (convba (shift hi (x + (finiteBitSize hi)))))
-                        (shift hi x)
-         where convab = integerToLargeWord . largeWordToInteger
-               convba = integerToLargeWord . largeWordToInteger
+         then
+           if loSize <= hiSize
+           then
+             LargeKey (shift lo x)
+                      (shift hi x .|. (shift (convab lo) (x - (finiteBitSize lo))))
+           else
+             LargeKey (shift lo x)
+                      (shift hi x .|. (convab (shift lo (x - (finiteBitSize lo)))))
+         else
+           if loSize <= hiSize
+           then
+             LargeKey (shift lo x .|. (convba (shift hi (x + (finiteBitSize hi)))))
+                      (shift hi x)
+           else
+             LargeKey (shift lo x .|. (shift (convba hi) (x + (finiteBitSize hi))))
+                      (shift hi x)
+         where
+           loSize = finiteBitSize lo
+           hiSize = finiteBitSize hi
+           convab = integerToLargeWord . largeWordToInteger
+           convba = integerToLargeWord . largeWordToInteger
       largeBitSize ~(LargeKey lo hi) = largeBitSize lo + largeBitSize hi
 
 instance (Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b, Num b, LargeWord b) => Show (LargeKey a b) where

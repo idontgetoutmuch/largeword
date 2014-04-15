@@ -18,6 +18,10 @@ import Control.Monad
 import Data.Binary (encode, decode, Binary)
 import qualified Data.ByteString.Lazy as LZ
 
+import Text.Printf
+import Data.Word
+
+
 instance (Arbitrary a, Arbitrary b) => Arbitrary (LargeKey a b) where
    arbitrary = liftM2 LargeKey arbitrary arbitrary
 
@@ -46,16 +50,67 @@ correctEncoding = (decode . LZ.pack)
 	@?=
 	(1234567891234567891234567812345678123456781234567812345678 :: Word256)
 
+pRotateLeftRight :: Word256 -> Bool
+pRotateLeftRight x = rotate (rotate x 8) (-8) == x
+
+pRepeatedShift :: Int -> Property
+pRepeatedShift n =
+  (n >= 0) ==> (((iterate (`shift` 8) (1::Word192))!!n) == shift (1::Word192) (n*8))
+
+pRepeatedShift' :: Int -> Property
+pRepeatedShift' n =
+  (n >= 0) ==> (((iterate (`shift` 8) a)!!n) == shift a (n*8))
+
+pRepeatedShift160 :: Int -> Property
+pRepeatedShift160 n =
+  (n >= 0) ==> (((iterate (`shift` 8) (1::Word160))!!n) == shift (1::Word160) (n*8))
+
 u2 :: Assertion
 u2 = (2 :: LargeKey Word256 Word128) ^ 254 @?=
      (fromInteger (2 :: Integer) ^ 254)
+
+u3 :: Assertion
+u3 = rotate (rotate ((2^255) :: Word256) (1)) (-1) @?=
+     ((2^255) :: Word256)
+
+a :: Word192
+a = 0x0123456789ABCDEFFEDCBA98765432100011223344556677
+
+u4 :: Assertion
+u4 = shift (0x0123456789ABCDEFFEDCBA98765432100011223344556677 :: Word192) 80 @?=
+           (0xBA9876543210001122334455667700000000000000000000 :: Word192)
+
+
+
+
+x :: Word96
+x = 0x112233445566778899AABBCC
+
+y :: Word128
+y = 0x112233445566778899AABBCCDDEEFF11
+
+z :: Word160
+z = 0x112233445566778899AABBCCDDEEFF1122334455
+
+u5 :: Assertion
+u5 = shift (0x112233445566778899AABBCC :: Word96) 40 @?=
+           (0x66778899AABBCC0000000000 :: Word96)
+
+u6 :: Assertion
+u6 = rotate ((2^95) :: Word96) (1) @?= 1
 
 tests :: [Test]
 tests =
     [ testProperty "largeword shift left then right" pShiftRightShiftLeft
     , testProperty "largeword quotRem by 16" pQuotRem
+    , testProperty "largeword rotate left then right" pRotateLeftRight
+    , testProperty "largeword repeated shift vs single shift" pRepeatedShift
     , testCase "largeword shift 2^64 by 2^64" u1
     , testCase "largeword exponentiation 2^254" u2
+    , testCase "largeword rotation by 1" u3
+    , testCase "largeword shift by 80" u4
+    , testCase "largeword shift by 40" u5
+    , testCase "largeword rotate by 1" u6
     , testCase "big-endian encoding" correctEncoding
     , testProperty "Word96 encode/decode loop" (encodeDecode::Word96 -> Bool)
     , testProperty "Word128 encode/decode loop" (encodeDecode::Word128 -> Bool)
