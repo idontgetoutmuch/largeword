@@ -1,4 +1,12 @@
-{-# LANGUAGE CPP #-}
+{-# OPTIONS_GHC -Wall                      #-}
+{-# OPTIONS_GHC -fno-warn-name-shadowing   #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults    #-}
+{-# OPTIONS_GHC -fno-warn-unused-do-bind   #-}
+{-# OPTIONS_GHC -fno-warn-missing-methods  #-}
+{-# OPTIONS_GHC -fno-warn-orphans          #-}
+
+{-# LANGUAGE CPP                           #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.LargeWord
@@ -29,7 +37,6 @@ module Data.LargeWord
 import Data.Word
 import Data.Bits
 import Numeric
-import Data.Char
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Binary (Binary, put, get)
@@ -39,65 +46,65 @@ import Data.Binary (Binary, put, get)
 class LargeWord a where
    largeWordToInteger :: a -> Integer
    integerToLargeWord :: Integer -> a
-   largeWordPlus :: a -> a -> a
-   largeWordMinus :: a -> a -> a
-   largeWordAnd :: a -> a -> a
-   largeWordOr :: a -> a -> a
-   largeWordShift :: a -> Int -> a
-   largeWordXor :: a -> a -> a
-   largeBitSize :: a -> Int
+   largeWordPlus      :: a -> a -> a
+   largeWordMinus     :: a -> a -> a
+   largeWordAnd       :: a -> a -> a
+   largeWordOr        :: a -> a -> a
+   largeWordShift     :: a -> Int -> a
+   largeWordXor       :: a -> a -> a
+   largeBitSize       :: a -> Int
 
 -- Word8 is a key in the obvious way
 
 instance LargeWord Word8 where
   largeWordToInteger = toInteger
   integerToLargeWord = fromInteger
-  largeWordPlus = (+)
-  largeWordMinus = (-)
-  largeWordAnd  = (.&.)
-  largeWordOr   = (.|.)
-  largeWordShift = shift
-  largeWordXor   = xor
-  largeBitSize   = finiteBitSize
+  largeWordPlus      = (+)
+  largeWordMinus     = (-)
+  largeWordAnd       = (.&.)
+  largeWordOr        = (.|.)
+  largeWordShift     = shift
+  largeWordXor       = xor
+  largeBitSize       = finiteBitSize
 
 -- Word16 is a key in the obvious way
 
 instance LargeWord Word16 where
   largeWordToInteger = toInteger
   integerToLargeWord = fromInteger
-  largeWordPlus = (+)
-  largeWordMinus = (-)
-  largeWordAnd  = (.&.)
-  largeWordOr   = (.|.)
-  largeWordShift = shift
-  largeWordXor   = xor
-  largeBitSize   = finiteBitSize
+  largeWordPlus      = (+)
+  largeWordMinus     = (-)
+  largeWordAnd       = (.&.)
+  largeWordOr        = (.|.)
+  largeWordShift     = shift
+  largeWordXor       = xor
+  largeBitSize       = finiteBitSize
 
 -- Word32 is a key in the obvious way.
 
 instance LargeWord Word32 where
   largeWordToInteger = toInteger
   integerToLargeWord = fromInteger
-  largeWordPlus = (+)
-  largeWordMinus = (-)
-  largeWordAnd = (.&.)
-  largeWordOr = (.|.)
-  largeWordShift = shift
-  largeWordXor = xor
-  largeBitSize = finiteBitSize
+  largeWordPlus      = (+)
+  largeWordMinus     = (-)
+  largeWordAnd       = (.&.)
+  largeWordOr        = (.|.)
+  largeWordShift     = shift
+  largeWordXor       = xor
+  largeBitSize       = finiteBitSize
 
 -- Word64 is a key in the obvious way.
 
 instance LargeWord Word64 where
   largeWordToInteger = toInteger
   integerToLargeWord = fromInteger
-  largeWordPlus = (+)
-  largeWordMinus = (-)
-  largeWordAnd = (.&.)
-  largeWordOr = (.|.)
-  largeWordShift = shift
-  largeWordXor = xor
-  largeBitSize = finiteBitSize
+  largeWordPlus      = (+)
+  largeWordMinus     = (-)
+  largeWordAnd       = (.&.)
+  largeWordOr        = (.|.)
+  largeWordShift     = shift
+  largeWordXor       = xor
+  largeBitSize       = finiteBitSize
 
 -- Define larger keys from smaller ones.
 
@@ -105,9 +112,11 @@ data LargeKey a b = LargeKey a b
    deriving (Eq, Ord)
 
 {-# INLINE loHalf #-}
-loHalf (LargeKey a b) = a
+loHalf :: LargeKey a b -> a
+loHalf (LargeKey a _b) = a
 {-# INLINE hiHalf #-}
-hiHalf (LargeKey a b) = b
+hiHalf :: LargeKey a b -> b
+hiHalf (LargeKey _a b) = b
 
 instance (Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b, Num b, LargeWord b) =>
    LargeWord (LargeKey a b) where
@@ -142,16 +151,16 @@ instance (Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b,
          if x >= 0
             then
                LargeKey (shift lo x)
-                        (shift hi x .|. (convab $ shift lo (x - (finiteBitSize lo))))
+                        (shift hi x .|. (shift (convab lo) (x - (finiteBitSize lo))))
             else
-               LargeKey (shift lo x .|. (convba $ shift hi (x + (finiteBitSize hi))))
+               LargeKey (shift lo x .|. (convba (shift hi (x + (finiteBitSize hi)))))
                         (shift hi x)
          where convab = integerToLargeWord . largeWordToInteger
                convba = integerToLargeWord . largeWordToInteger
       largeBitSize ~(LargeKey lo hi) = largeBitSize lo + largeBitSize hi
 
 instance (Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b, Num b, LargeWord b) => Show (LargeKey a b) where
-   showsPrec p = showInt . largeWordToInteger
+   showsPrec _p = showInt . largeWordToInteger
 
 instance (Ord b, Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b, Num b, LargeWord b) =>
    Num (LargeKey a b) where
@@ -181,6 +190,8 @@ instance (Ord a, Ord b, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, Finite
                     | i == 0 = x
                     | i > 0  = (x `largeWordShift` i) .|.
                                (x `largeWordShift` (i - largeBitSize x))
+                    | otherwise = error $ "Clearly i must be < 0, == 0 or > 0" ++
+                                          "but ghc can't determine this"
       complement (LargeKey a b) = LargeKey (complement a) (complement b)
       bitSize = largeBitSize
       bitSizeMaybe = Just . largeBitSize
