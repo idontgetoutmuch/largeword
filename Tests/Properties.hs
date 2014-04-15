@@ -46,11 +46,16 @@ correctEncoding = (decode . LZ.pack)
 	@?=
 	(1234567891234567891234567812345678123456781234567812345678 :: Word256)
 
+u2 :: Assertion
+u2 = (2 :: LargeKey Word256 Word128) ^ 254 @?=
+     (fromInteger (2 :: Integer) ^ 254)
+
 tests :: [Test]
 tests =
     [ testProperty "largeword shift left then right" pShiftRightShiftLeft
     , testProperty "largeword quotRem by 16" pQuotRem
     , testCase "largeword shift 2^64 by 2^64" u1
+    , testCase "largeword exponentiation 2^254" u2
     , testCase "big-endian encoding" correctEncoding
     , testProperty "Word96 encode/decode loop" (encodeDecode::Word96 -> Bool)
     , testProperty "Word128 encode/decode loop" (encodeDecode::Word128 -> Bool)
