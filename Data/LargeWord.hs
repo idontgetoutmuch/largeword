@@ -161,10 +161,10 @@ instance (Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, FiniteBits b,
          else
            if loSize <= hiSize
            then
-             LargeKey (shift lo x .|. (convba (shift hi (x + (finiteBitSize hi)))))
+             LargeKey (shift lo x .|. (convba (shift hi (x + (finiteBitSize lo)))))
                       (shift hi x)
            else
-             LargeKey (shift lo x .|. (shift (convba hi) (x + (finiteBitSize hi))))
+             LargeKey (shift lo x .|. (shift (convba hi) (x + (finiteBitSize lo))))
                       (shift hi x)
          where
            loSize = finiteBitSize lo
