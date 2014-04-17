@@ -18,9 +18,6 @@ import Control.Monad
 import Data.Binary (encode, decode, Binary)
 import qualified Data.ByteString.Lazy as LZ
 
-import Text.Printf
-import Data.Word
-
 
 instance (Arbitrary a, Arbitrary b) => Arbitrary (LargeKey a b) where
    arbitrary = liftM2 LargeKey arbitrary arbitrary
@@ -60,6 +57,9 @@ pRepeatedShift n =
 pRepeatedShift' :: Int -> Property
 pRepeatedShift' n =
   (n >= 0) ==> (((iterate (`shift` 8) a)!!n) == shift a (n*8))
+  where a :: Word192
+        a = 0x0123456789ABCDEFFEDCBA98765432100011223344556677
+
 
 pRepeatedShift160 :: Int -> Property
 pRepeatedShift160 n =
@@ -73,24 +73,9 @@ u3 :: Assertion
 u3 = rotate (rotate ((2^255) :: Word256) (1)) (-1) @?=
      ((2^255) :: Word256)
 
-a :: Word192
-a = 0x0123456789ABCDEFFEDCBA98765432100011223344556677
-
 u4 :: Assertion
 u4 = shift (0x0123456789ABCDEFFEDCBA98765432100011223344556677 :: Word192) 80 @?=
            (0xBA9876543210001122334455667700000000000000000000 :: Word192)
-
-
-
-
-x :: Word96
-x = 0x112233445566778899AABBCC
-
-y :: Word128
-y = 0x112233445566778899AABBCCDDEEFF11
-
-z :: Word160
-z = 0x112233445566778899AABBCCDDEEFF1122334455
 
 u5 :: Assertion
 u5 = shift (0x112233445566778899AABBCC :: Word96) 40 @?=
@@ -105,6 +90,8 @@ tests =
     , testProperty "largeword quotRem by 16" pQuotRem
     , testProperty "largeword rotate left then right" pRotateLeftRight
     , testProperty "largeword repeated shift vs single shift" pRepeatedShift
+    , testProperty "largeword repeated shift vs single shift" pRepeatedShift'
+    , testProperty "largeword repeated shift vs single shift" pRepeatedShift160
     , testCase "largeword shift 2^64 by 2^64" u1
     , testCase "largeword exponentiation 2^254" u2
     , testCase "largeword rotation by 1" u3
