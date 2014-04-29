@@ -42,6 +42,23 @@ import Control.Applicative ((<$>), (<*>))
 import Data.Binary (Binary, put, get)
 
 
+#if MIN_VERSION_base(4,6,0) && !(MIN_VERSION_base(4,7,0))
+class FiniteBits a where
+  finiteBitSize :: a -> Int
+
+instance FiniteBits Word8 where
+  finiteBitSize = bitSize
+
+instance FiniteBits Word16 where
+  finiteBitSize = bitSize
+
+instance FiniteBits Word32 where
+  finiteBitSize = bitSize
+
+instance FiniteBits Word64 where
+  finiteBitSize = bitSize
+#endif
+
 -- Keys have certain capabilities.
 
 class LargeWord a where
@@ -208,7 +225,9 @@ instance (Ord a, Ord b, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, Finite
                                           "but ghc can't determine this"
       complement (LargeKey a b) = LargeKey (complement a) (complement b)
       bitSize = largeBitSize
+#if MIN_VERSION_base(4,7,0)
       bitSizeMaybe = Just . largeBitSize
+#endif
       isSigned _ = False
 #if MIN_VERSION_base(4,6,0)
       bit = bitDefault
@@ -216,8 +235,8 @@ instance (Ord a, Ord b, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, Finite
       popCount = popCountDefault
 #endif
 
-instance (LargeWord a, FiniteBits a, Ord a, Num a,
-          LargeWord b, FiniteBits b, Ord b, Num b) => FiniteBits (LargeKey a b) where
+instance (LargeWord a, Bits a, FiniteBits a, Ord a, Num a,
+          LargeWord b, Bits b, FiniteBits b, Ord b, Num b) => FiniteBits (LargeKey a b) where
   finiteBitSize = largeBitSize
 
 instance (Ord a, Bits a, FiniteBits a, Bounded a, Integral a, LargeWord a,

@@ -52,18 +52,20 @@ pRotateLeftRight x = rotate (rotate x 8) (-8) == x
 
 pRepeatedShift :: Int -> Property
 pRepeatedShift n =
-  (n >= 0) ==> (((iterate (`shift` 8) (1::Word192))!!n) == shift (1::Word192) (n*8))
+  (n >= 0) && (n <= 1024) ==>
+  (((iterate (`shift` 8) (1::Word192))!!n) == shift (1::Word192) (n*8))
 
 pRepeatedShift' :: Int -> Property
 pRepeatedShift' n =
-  (n >= 0) ==> (((iterate (`shift` 8) a)!!n) == shift a (n*8))
+  (n >= 0) && (n <= 1024) ==>
+  (((iterate (`shift` 8) a)!!n) == shift a (n*8))
   where a :: Word192
         a = 0x0123456789ABCDEFFEDCBA98765432100011223344556677
 
-
 pRepeatedShift160 :: Int -> Property
 pRepeatedShift160 n =
-  (n >= 0) ==> (((iterate (`shift` 8) (1::Word160))!!n) == shift (1::Word160) (n*8))
+  (n >= 0) && (n <= 1024) ==>
+  (((iterate (`shift` 8) (1::Word160))!!n) == shift (1::Word160) (n*8))
 
 u2 :: Assertion
 u2 = (2 :: LargeKey Word256 Word128) ^ 254 @?=
