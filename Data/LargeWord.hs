@@ -42,7 +42,7 @@ import Control.Applicative ((<$>), (<*>))
 import Data.Binary (Binary, put, get)
 
 
-#if MIN_VERSION_base(4,6,0) && !(MIN_VERSION_base(4,7,0))
+#if !(MIN_VERSION_base(4,7,0))
 class FiniteBits a where
   finiteBitSize :: a -> Int
 
