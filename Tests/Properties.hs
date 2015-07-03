@@ -86,6 +86,9 @@ u5 = shift (0x112233445566778899AABBCC :: Word96) 40 @?=
 u6 :: Assertion
 u6 = rotate ((2^95) :: Word96) (1) @?= 1
 
+u7 :: Assertion
+u7 = (2^64 :: Word128) < (2 :: Word128) @?= False
+
 tests :: [Test]
 tests =
     [ testProperty "largeword shift left then right" pShiftRightShiftLeft
@@ -107,6 +110,7 @@ tests =
     , testProperty "Word192 encode/decode loop" (encodeDecode::Word192 -> Bool)
     , testProperty "Word224 encode/decode loop" (encodeDecode::Word224 -> Bool)
     , testProperty "Word256 encode/decode loop" (encodeDecode::Word256 -> Bool)
+    , testCase "largeword Ord test" u7
       ]
 
 main :: IO ()
