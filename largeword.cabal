@@ -37,4 +37,4 @@ Test-suite tests
                  test-framework-hunit >= 0.2.6 && < 0.4,
                  QuickCheck >= 2.4.0.1,
                  HUnit >= 1.2.2.3,
-                 largeword == 1.2.3
+                 largeword
