@@ -203,8 +203,8 @@ instance (Ord b, Ord a, Bits a, FiniteBits a, Num a, LargeWord a, Bits b, Finite
          | i == finiteBitSize r = r
          | testBit b i = go (i+1) (r + (a `shiftL` i))
          | otherwise   = go (i+1) r
-      negate = id
-      abs    = id
+      negate a = complement a + 1
+      abs      = id
       signum a = if a > 0 then 1 else 0
       fromInteger = integerToLargeWord
 
