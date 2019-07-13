@@ -22,7 +22,8 @@ source-repository head
 
 Library
   Build-Depends:   base >= 4.0 && < 5,
-                   binary
+                   binary,
+                   data-serializer
   exposed-modules: Data.LargeWord
 
 Test-suite tests

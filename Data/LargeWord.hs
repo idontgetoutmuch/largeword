@@ -5,7 +5,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-methods  #-}
 {-# OPTIONS_GHC -fno-warn-orphans          #-}
 
-{-# LANGUAGE CPP                           #-}
+{-# LANGUAGE CPP, ScopedTypeVariables      #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -40,7 +40,8 @@ import Numeric
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Binary (Binary, put, get)
-
+import Data.Proxy(Proxy(Proxy))
+import qualified Data.Serializer as DS
 
 #if !(MIN_VERSION_base(4,7,0))
 class FiniteBits a where
@@ -299,3 +300,9 @@ type Word160 = LargeKey Word32 Word128
 type Word192 = LargeKey Word64 Word128
 type Word224 = LargeKey Word32 Word192
 type Word256 = LargeKey Word64 Word192
+
+instance (DS.Serializable a, DS.Serializable b) => DS.Serializable (LargeKey a b) where
+    put (LargeKey a b) = DS.put a <> DS.put b
+
+instance (DS.SizedSerializable a, DS.SizedSerializable b) => DS.SizedSerializable (LargeKey a b) where
+    size Proxy = DS.size (Proxy :: Proxy a) + DS.size (Proxy :: Proxy b)
